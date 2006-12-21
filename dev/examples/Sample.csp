@@ -1,0 +1,31 @@
+{title:Sample Song}
+{subtitle:Easy Version}
+{credits:Written by Blake Garretson}
+{copyright:Copyright 2004 by BTG Publishing}
+{key:G}
+{order:V1, C, V2, B, C}
+
+{timing:4/4}
+{soblk:Verse 1}
+[G]This is the [D]first | [C7]verse, line one.
+And [G]then the [G]second | [D]line [D]too [D][G]
+[C]Afterwhich comes the | [G]third line and 
+[C7]last but not least, the | [G]fourth.
+{eoblk}
+
+{soc}
+|: The [G]chorus is a [D]set of | [G]lines repeated [D]twice
+[D]and the second [C]time | [D]through ends a little |(1.) [G]different. |(2.) [G]differ[C]ent.
+{eoc}
+
+{soblk:Verse 2}
+[G]This is the second | [C7]verse, line one.
+And [G]then the second | [D]line too
+[C]Afterwhich comes the | [G]third line and 
+[C7]last but not least, the | [G]fourth.
+{eoblk}
+
+{sob}
+|: [G]The bridge is a set of | lines repeated twice
+as well, just like the chorus. :|
+{eob}
