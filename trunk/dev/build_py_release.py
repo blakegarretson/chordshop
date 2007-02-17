@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import os, shutil, glob, sys, re
 join = os.path.join
-devel_dir = "../devel"
+devel_dir = "../dev"
 sys.path.append(devel_dir)
 f = file(join(devel_dir,'chordshop.py'))
 t = f.read()
