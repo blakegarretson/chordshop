@@ -5,9 +5,9 @@ usage: cs2pdf <file>
     Where <file> can be a single ChordPro (or ChordPro Plus)
     file or a Songbook collection file.
 
-Copyright (C) 2004-2006 Blake T. Garretson
+Copyright (C) 2004-2007 Blake T. Garretson
 
-Email: blakeg@freeshell.org
+Email: blake@blakeg.net
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -135,8 +135,6 @@ class ChordProPlusFile:
         'data':''
         },
         ]
-
-
     """
     def __init__(self,filename):
         self.filename = filename
