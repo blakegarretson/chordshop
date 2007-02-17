@@ -779,7 +779,7 @@ class SongRenderer:
             drawing.add(Line(self.repeatbracket,  self.repeat_bracket_ymax, x,
                  self.repeat_bracket_ymax, strokeWidth=1))
             self.repeatbracket = 0
-        repeat_bar_space = 4
+        repeat_bar_space = 2
         x = self.pre_padding + x 
         bar_width = 1.2
         bar_height = height/2.0
