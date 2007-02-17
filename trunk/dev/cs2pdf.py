@@ -587,7 +587,7 @@ class SongRenderer:
         else:
             add_first_barline = 0
         # set initial variables
-        self.repeat_circle_radius = 1.5
+        self.repeat_circle_radius = 1.2
         self.pre_padding = 8
         self.post_padding = 8
         minimum_beat_width = self.c.stringWidth("GG", self.config.fonts.chords_face, self.config.fonts.chords_size)
@@ -780,48 +780,50 @@ class SongRenderer:
                  self.repeat_bracket_ymax, strokeWidth=1))
             self.repeatbracket = 0
         repeat_bar_space = 4
-        x = self.pre_padding + x
-        bar_width = 1.5
+        x = self.pre_padding + x 
+        bar_width = 1.2
+        bar_height = height/2.0
+        y_start = height/2.0 # experimental
         if style == "|":
-            drawing.add(Line(x, 0, x, height, strokeWidth=bar_width))
+            drawing.add(Line(x, y_start, x, height, strokeWidth=bar_width))
             repeat_xloc = x
             x += self.post_padding
         elif style == "|:":
             repeat_xloc = x
-            drawing.add(Line(x, 0, x, height, strokeWidth=bar_width))
+            drawing.add(Line(x, y_start, x, height, strokeWidth=bar_width))
             x += repeat_bar_space
-            drawing.add(Line(x, 0, x, height, strokeWidth=bar_width))
+            drawing.add(Line(x, y_start, x, height, strokeWidth=bar_width))
             x += self.repeat_circle_radius*3
-            for h in (height/3.0, 2*height/3.0):
-                drawing.add(Circle(x, h, self.repeat_circle_radius,
+            for h in (bar_height/3.0, 2*bar_height/3.0):
+                drawing.add(Circle(x, y_start+h, self.repeat_circle_radius,
                                     fillColor=colors.black,
                                     strokeColor=colors.black,
                                     strokeWidth=0.5))
             x += self.post_padding
         elif style == ":|":
             x += self.repeat_circle_radius
-            for h in (height/3.0, 2*height/3.0):
-                drawing.add(Circle(x, h, self.repeat_circle_radius,
+            for h in (bar_height/3.0, 2*bar_height/3.0):
+                drawing.add(Circle(x, y_start+h, self.repeat_circle_radius,
                                     fillColor=colors.black,
                                     strokeColor=colors.black,
                                     strokeWidth=0.5))
             x += self.repeat_circle_radius*3
-            drawing.add(Line(x, 0, x, height, strokeWidth=bar_width))
+            drawing.add(Line(x, y_start, x, height, strokeWidth=bar_width))
             x += repeat_bar_space
-            drawing.add(Line(x, 0, x, height, strokeWidth=bar_width))
+            drawing.add(Line(x, y_start, x, height, strokeWidth=bar_width))
             repeat_xloc = x
             x += self.post_padding
         elif style == ":|:":
             #x += self.repeat_circle_radius
-            for h in (height/3.0, 2*height/3.0):
-                drawing.add(Circle(x, h, self.repeat_circle_radius,
+            for h in (bar_height/3.0, 2*bar_height/3.0):
+                drawing.add(Circle(x, y_start+h, self.repeat_circle_radius,
                                     fillColor=colors.black,
                                     strokeColor=colors.black,
                                     strokeWidth=0.5))
             x += self.repeat_circle_radius*3
-            drawing.add(Line(x, 0, x, height, strokeWidth=bar_width))
+            drawing.add(Line(x, y_start, x, height, strokeWidth=bar_width))
             x += repeat_bar_space
-            drawing.add(Line(x, 0, x, height, strokeWidth=bar_width))
+            drawing.add(Line(x, y_start, x, height, strokeWidth=bar_width))
             repeat_xloc = x
             x += self.repeat_circle_radius*3
             for h in (height/3.0, 2*height/3.0):

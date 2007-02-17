@@ -649,7 +649,7 @@ class ChordProPlusEditor(wx.Panel):
     def updateTitle(self):
         self.parent.parent.SetTitle("%s - %s" % (conf.program_str, os.path.basename(self.currentfile)))
     def writeFile(self, filename):
-        f = open(filename, 'wU')
+        f = open(filename, 'w')
         f.write(self.editor.GetText())
         f.close()
         self.editor.modified = False
