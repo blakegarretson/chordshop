@@ -184,7 +184,7 @@ class ChordProPlusFile:
             elif line[0] == '{':
                 self.process_directive(line)
             elif line[0] == '#':
-                # This is a comment, ignore it.
+                # The current line is a comment, ignore it.
                 pass
             else:
                 self.into_music = 1
