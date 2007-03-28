@@ -302,7 +302,9 @@ class Voicings(Chord):
                     low = x
                 if x > high:
                     high = x
-            #
+            # FIXME
+            if low == 1000:
+                low = high
             if (high - low) > (self.reach-1): # can't reach
                 #print "Reach Dropping", f
                 continue
@@ -340,7 +342,7 @@ class Voicings(Chord):
             for s in self.allstrings[1:]:
                 sublist = []
                 for fret in s:
-                    if fret in [0, 'x'] or (abs(fret-firstfret) < self.reach):
+                    if fret in [0, 'x'] or (abs(fret-firstfret) <= self.reach):
                         sublist.append(fret)
                 string_lists.append(sublist)
             results.extend(self.permute(string_lists))
