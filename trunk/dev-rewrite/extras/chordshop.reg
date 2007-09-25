@@ -1,0 +1,74 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_CLASSES_ROOT\.pro]
+@="chordpro"
+
+[HKEY_CLASSES_ROOT\.csp]
+@="chordshop"
+
+[HKEY_CLASSES_ROOT\.sbk]
+@="cssongbook"
+
+[HKEY_CLASSES_ROOT\chordpro]
+"EditFlags"=dword:00000000
+"BrowserFlags"=dword:00000008
+@="ChordPro Chord Sheet"
+
+[HKEY_CLASSES_ROOT\chordpro\DefaultIcon]
+@="\"C:\\Program Files\\Chordshop\\extras\\chords_blue.ico\",0"
+
+[HKEY_CLASSES_ROOT\chordpro\shell]
+@="Chord Pro"
+
+[HKEY_CLASSES_ROOT\chordpro\shell\Chordshop]
+
+[HKEY_CLASSES_ROOT\chordpro\shell\Chordshop\command]
+@="\"C:\\Program Files\\Chordshop\\chordshop.exe\" \"%1\""
+
+[HKEY_CLASSES_ROOT\chordpro\shell\Generate PDF]
+
+[HKEY_CLASSES_ROOT\chordpro\shell\Generate PDF\command]
+@="\"C:\\Program Files\\Chordshop\\cs2pdf_gui.exe\" \"%1\""
+
+[HKEY_CLASSES_ROOT\chordshop]
+"EditFlags"=dword:00000000
+"BrowserFlags"=dword:00000008
+@="Chordshop Chord Sheet"
+
+[HKEY_CLASSES_ROOT\chordshop\DefaultIcon]
+@="\"C:\\Program Files\\Chordshop\\extras\\chords_red.ico\",0"
+
+[HKEY_CLASSES_ROOT\chordshop\shell]
+@="Chordshop"
+
+[HKEY_CLASSES_ROOT\chordshop\shell\Chordshop]
+
+[HKEY_CLASSES_ROOT\chordshop\shell\Chordshop\command]
+@="\"C:\\Program Files\\Chordshop\\chordshop.exe\" \"%1\""
+
+[HKEY_CLASSES_ROOT\chordshop\shell\Generate PDF]
+
+[HKEY_CLASSES_ROOT\chordshop\shell\Generate PDF\command]
+@="\"C:\\Program Files\\Chordshop\\cs2pdf_gui.exe\" \"%1\""
+
+[HKEY_CLASSES_ROOT\cssongbook]
+"EditFlags"=dword:00000000
+"BrowserFlags"=dword:00000008
+@="Chordshop Songbook"
+
+[HKEY_CLASSES_ROOT\cssongbook\DefaultIcon]
+@="\"C:\\Program Files\\Chordshop\\extras\\chordshop.ico\",0"
+
+[HKEY_CLASSES_ROOT\cssongbook\shell]
+@="Chordshop"
+
+[HKEY_CLASSES_ROOT\cssongbook\shell\Chordshop]
+
+[HKEY_CLASSES_ROOT\cssongbook\shell\Chordshop\command]
+@="\"C:\\Program Files\\Chordshop\\chordshop.exe\" \"%1\""
+
+[HKEY_CLASSES_ROOT\cssongbook\shell\Generate PDF]
+
+[HKEY_CLASSES_ROOT\cssongbook\shell\Generate PDF\command]
+@="\"C:\\Program Files\\Chordshop\\cs2pdf_gui.exe\" \"%1\""
+
