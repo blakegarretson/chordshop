@@ -149,7 +149,7 @@ class ChordProPlusFile:
         #
         self.initilize_vars()
         self.parse()
-        print self.measures
+        #print self.measures
         #
     def use_sharps(self,val=1):
         self.use_sharps = val
@@ -478,7 +478,7 @@ class SongRenderer:
         self.repeat_spacing = self.config.fonts.repeat_size*1.1
         self.paper_center = self.config.paper.width/2.0
         self.paper_rightedge = self.config.paper.width - self.config.paper.right_margin
-        self.indent = self.lyrics_spacing*2
+        self.indent = self.lyrics_spacing
         self.space_width = self.c.stringWidth(" ", self.config.fonts.lyrics_face, self.config.fonts.lyrics_size)
     def set_capo(self, value):
         if isinstance(value, int):
@@ -684,7 +684,7 @@ class SongRenderer:
                                 timing_line_y,
                                 self.pre_padding + timing_width,
                                 timing_line_y,
-                                strokeWidth=1.5))
+                                strokeWidth=1.5, strokeLineCap=1))
                     d.add(String(self.pre_padding+timing_halfwidth,
                                 timing_line_y + timing_y_spacing,
                                 top,
@@ -731,7 +731,7 @@ class SongRenderer:
                             chord_width = self.c.stringWidth("G", cfn, cfs)
                             d.add(Line(d_x, self.lyrics_spacing, d_x + chord_width,
                                 self.lyrics_spacing + self.config.fonts.chords_size*0.8,
-                                strokeWidth=1.5))
+                                strokeWidth=1.5, strokeLineCap=1))
                         else:
                             d.add(String(d_x, self.lyrics_spacing, chordname , fontName=cfn, fontSize=cfs))
                             chord_width1 = self.c.stringWidth(chordname, cfn, cfs)
@@ -746,7 +746,7 @@ class SongRenderer:
                                 chord_width2 = 0
                             chord_width = max(chord_width1, chord_width2)
                         if grouping_status == '>': # Draw chord grouping symbols
-                            grouping_style = 'underline' # temporary hack to switch between methods
+                            grouping_style = 'underline2' # temporary hack to switch between methods
                             if grouping_style == 'underline':
                                 grouping_y = self.lyrics_spacing*self.grouping_y_placement
                                 ydelta = self.lyrics_spacing - grouping_y
@@ -760,6 +760,19 @@ class SongRenderer:
                                 d.add(Line(
                                        grouping_start, grouping_y, 
                                        grouping_start-ydelta, self.lyrics_spacing,
+                                       strokeWidth=.75, strokeLineCap=1))
+                            elif grouping_style == 'underline2':
+                                grouping_y = self.lyrics_spacing*self.grouping_y_placement
+                                ydelta = self.lyrics_spacing - grouping_y
+                                gx = grouping_start-ydelta
+                                gx2 = d_x+chord_width+ydelta
+                                d.add(Line(gx, grouping_y, 
+                                       gx2, grouping_y, strokeWidth=.75, strokeLineCap=1))
+                                d.add(Line(
+                                       gx2, grouping_y, gx2, self.lyrics_spacing,
+                                       strokeWidth=.75, strokeLineCap=1))
+                                d.add(Line(
+                                       gx, grouping_y, gx, self.lyrics_spacing,
                                        strokeWidth=.75, strokeLineCap=1))
                             elif grouping_style == 'overline':
                                 grouping_y = self.lyrics_spacing+self.chords_spacing
@@ -805,14 +818,14 @@ class SongRenderer:
         y_start = height/2.0 # experimental
         if style == "|":
             pass
-            #drawing.add(Line(x, y_start, x, height, strokeWidth=bar_width))
+            #drawing.add(Line(x, y_start, x, height, strokeWidth=bar_width, strokeLineCap=1))
             repeat_xloc = x
             #x += self.post_padding
         elif style == "|:":
             repeat_xloc = x
-            drawing.add(Line(x, y_start, x, height, strokeWidth=bar_width))
+            drawing.add(Line(x, y_start, x, height, strokeWidth=bar_width, strokeLineCap=1))
             x += repeat_bar_space
-            drawing.add(Line(x, y_start, x, height, strokeWidth=bar_width))
+            drawing.add(Line(x, y_start, x, height, strokeWidth=bar_width, strokeLineCap=1))
             x += self.repeat_circle_radius*3
             for h in (bar_height/3.0, 2*bar_height/3.0):
                 drawing.add(Circle(x, y_start+h, self.repeat_circle_radius,
@@ -828,9 +841,9 @@ class SongRenderer:
                                     strokeColor=colors.black,
                                     strokeWidth=0.5))
             x += self.repeat_circle_radius*3
-            drawing.add(Line(x, y_start, x, height, strokeWidth=bar_width))
+            drawing.add(Line(x, y_start, x, height, strokeWidth=bar_width, strokeLineCap=1))
             x += repeat_bar_space
-            drawing.add(Line(x, y_start, x, height, strokeWidth=bar_width))
+            drawing.add(Line(x, y_start, x, height, strokeWidth=bar_width, strokeLineCap=1))
             repeat_xloc = x
             x += self.post_padding
         elif style == ":|:":
@@ -841,9 +854,9 @@ class SongRenderer:
                                     strokeColor=colors.black,
                                     strokeWidth=0.5))
             x += self.repeat_circle_radius*3
-            drawing.add(Line(x, y_start, x, height, strokeWidth=bar_width))
+            drawing.add(Line(x, y_start, x, height, strokeWidth=bar_width, strokeLineCap=1))
             x += repeat_bar_space
-            drawing.add(Line(x, y_start, x, height, strokeWidth=bar_width))
+            drawing.add(Line(x, y_start, x, height, strokeWidth=bar_width, strokeLineCap=1))
             repeat_xloc = x
             x += self.repeat_circle_radius*3
             for h in (height/3.0, 2*height/3.0):
@@ -855,12 +868,12 @@ class SongRenderer:
         if repeat:
             self.d_height = self.repeat_bracket_ymax
             drawing.add(Line(repeat_xloc, self.repeat_bracket_ymin,
-                    repeat_xloc, self.repeat_bracket_ymax, strokeWidth=1))
+                    repeat_xloc, self.repeat_bracket_ymax, strokeWidth=1, strokeLineCap=1))
             drawing.add(String(repeat_xloc, self.repeat_bracket_ymin, " "+repeat,
                                         fontName=self.config.fonts.repeat_face,
                                         fontSize=self.config.fonts.repeat_size))
             drawing.add(Line(x,  self.repeat_bracket_ymax, x+bar_height*2,
-                 self.repeat_bracket_ymax, strokeWidth=1))
+                 self.repeat_bracket_ymax, strokeWidth=1, strokeLineCap=1))
         return x
     def update_y_loc(self, amount):
         self.y_loc = self.y_loc - amount
