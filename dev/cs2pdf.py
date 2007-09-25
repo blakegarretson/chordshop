@@ -149,6 +149,7 @@ class ChordProPlusFile:
         #
         self.initilize_vars()
         self.parse()
+        print self.measures
         #
     def use_sharps(self,val=1):
         self.use_sharps = val
@@ -214,7 +215,7 @@ class ChordProPlusFile:
                         #print matches[2].strip(),matches[3]
                         self._bar(matches[2].strip(),matches[3]) #args: '|:', '(1. 3.)'
                     elif matches[4]: #chord grouper
-                        self._chordgroup(matches[4]):
+                        self._chordgroup(matches[4])
                     current_position = end
                 if chord or line[current_position:]:
                     data.append((chord, line[current_position:]))
