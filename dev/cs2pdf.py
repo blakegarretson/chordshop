@@ -114,12 +114,12 @@ class ChordProPlusFile:
         'type':'directive',
         'directive':'timing',
         'data':'4/4'
-        }
+        },
         {
         'type':'bar',
         'data':'|:',
         'repeat':'',
-        }
+        },
         {
         'type':'music',
         'data':[('G',"words words"), ('C7',"words"), ('C7',"more words"), ('F',"and done")],
@@ -128,7 +128,7 @@ class ChordProPlusFile:
         'type':'bar',
         'style':'|:',
         'repeat':"1. 3.",
-        }
+        },
         {
         'type':'directive',
         'directive':'soc',
@@ -139,7 +139,7 @@ class ChordProPlusFile:
     def __init__(self,filename):
         self.filename = filename
         #self.chordpro_re = re.compile(r"(\[.+?\])|(( *:*\|:*)(\(.+?\))* *)")
-        self.chordpro_re = re.compile(r"(\[.+?\])|(( *:*\|:*)(\(.+?\))* *)|(<|>)")
+        self.chordpro_re = re.compile(r"(<*\[(.+?)\]>*)|(( *:*\|:*)(\(.+?\))* *)")
         try:
             self.file = file(filename,'r')
         except:
@@ -198,27 +198,30 @@ class ChordProPlusFile:
                 current_position = 0
                 data = []
                 chord = ""
+                chord_grouping_status = None
                 for x in self.chordpro_re.finditer(line):
                     start, end = x.span()
                     matches = x.groups()
                     if start:
                         t = line[current_position:start]
                         if t or chord:
-                            data.append((chord, t))
+                            data.append((chord, t, chord_grouping_status))
+                            chord_grouping_status = None
                     if matches[0]: #chord
-                        chord = matches[0][1:-1]
-                    elif matches[1]: #bar
+                        if matches[0].startswith('<'):
+                            chord_grouping_status = '<'
+                        elif matches[0].endswith('>'):
+                            chord_grouping_status = '>'
+                        chord = matches[1]
+                    elif matches[2]: #bar
                         if data: # i.e. not empty
                             self._music_measure(data)
                             data = []
                             chord = ""
-                        #print matches[2].strip(),matches[3]
-                        self._bar(matches[2].strip(),matches[3]) #args: '|:', '(1. 3.)'
-                    elif matches[4]: #chord grouper
-                        self._chordgroup(matches[4])
+                        self._bar(matches[3].strip(),matches[4]) #args: '|:', '(1. 3.)'
                     current_position = end
                 if chord or line[current_position:]:
-                    data.append((chord, line[current_position:]))
+                    data.append((chord, line[current_position:], chord_grouping_status))
                 if data:
                     self._music_measure(data)
                 self._directive_measure("\n")
@@ -275,13 +278,13 @@ class ChordProPlusFile:
         for m in self.measures:
             if m['type'] == 'music':
                 new_data = []
-                for chordname, text in m['data']:
+                for chordname, text, status in m['data']:
                     c = chord.Chord(chordname)
                     if not self.use_sharps:
                         c.use_flats()
                     c.transpose(transval)
                     chordname = c.name
-                    new_data.append((chordname,text))
+                    new_data.append((chordname,text,status))
                 m['data'] = new_data
             new_measures.append(m)
         self.measures = new_measures
@@ -465,8 +468,7 @@ class SongRenderer:
         # vars
         self.space_after_title = 16
         self.space_after_subtitle = 14
-        self.indent = 30
-        self.repeatbracket = 0
+        #self.repeatbracket = 0
         self.bar_drawn_last = 0
         self.line_spacing = self.config.fonts.lyrics_size*0.4
         self.lyrics_spacing = self.config.fonts.lyrics_size*1.1
@@ -476,6 +478,8 @@ class SongRenderer:
         self.repeat_spacing = self.config.fonts.repeat_size*1.1
         self.paper_center = self.config.paper.width/2.0
         self.paper_rightedge = self.config.paper.width - self.config.paper.right_margin
+        self.indent = self.lyrics_spacing*2
+        self.space_width = self.c.stringWidth(" ", self.config.fonts.lyrics_face, self.config.fonts.lyrics_size)
     def set_capo(self, value):
         if isinstance(value, int):
             self.capo = value # num
@@ -584,21 +588,15 @@ class SongRenderer:
     def draw_chords_and_lyrics(self):
         # set some flags
         tab = 0
-        if self.song.barspresent and not self.config.chordpro_mode:
-            processbars = self.song.barspresent
-        else:
-            processbars = 0
-        if processbars:
-            add_first_barline = 1
-        else:
-            add_first_barline = 0
+        processbars = 1
+        add_first_barline = 0
         # set initial variables
         self.repeat_circle_radius = 1.2
-        self.pre_padding = 8
-        self.post_padding = 8
+        self.pre_padding = 0 # used to be 8
+        self.post_padding = self.space_width*2
+        self.grouping_y_placement = 0.85
         minimum_beat_width = self.c.stringWidth("GG", self.config.fonts.chords_face, self.config.fonts.chords_size)
         bar_width = self.c.stringWidth("|", self.config.fonts.chords_face, self.config.fonts.chords_size)
-        space_width = self.c.stringWidth(" ", self.config.fonts.lyrics_face, self.config.fonts.lyrics_size)
         repeatbar_width = self.c.stringWidth("|:", self.config.fonts.chords_face, self.config.fonts.chords_size)
         if self.capo:
             #minimum_line_height = (self.chords_spacing*2 + self.lyrics_spacing)
@@ -621,10 +619,7 @@ class SongRenderer:
         d = Drawing(maximum_line_width, maximum_line_height)
         self.d_height = minimum_line_height
         d_x_indent = 10
-        if processbars:
-            d_x = 0 # this is the current x location in the drawing
-        else:
-            d_x = d_x_indent
+        d_x = 0 # this is the current x location in the drawing
         #
         for m in self.song.measures:
             if m['type'] == 'directive':
@@ -634,17 +629,10 @@ class SongRenderer:
                     self.c.setFont(self.config.fonts.comments_face, self.config.fonts.comments_size)
                     self.c.drawString(current_x, self.y_loc, m['data'])
                 elif directive == '\n': # line finished
-                    if processbars:
-                        add_first_barline = 1
-                        if not self.bar_drawn_last:
-                            d_x = self.draw_bar("|", "", d, d_x, minimum_line_height)
                     self.update_y_loc(self.d_height + self.line_spacing)
                     renderPDF.draw(d, self.c, current_x, self.y_loc)
                     self.d_height = minimum_line_height
-                    if processbars:
-                        d_x = 0 # this is the current x location in the drawing
-                    else:
-                        d_x = d_x_indent
+                    d_x = 0 # this is the current x location in the drawing
                     d = Drawing(maximum_line_width, maximum_line_height)
                 elif directive == 'blank':
                     self.update_y_loc(self.chords_spacing*1.5)
@@ -654,7 +642,8 @@ class SongRenderer:
                     self.c.setFont(self.config.fonts.blockid_face, self.config.fonts.blockid_size)
                     self.c.drawString(minimum_x, self.y_loc, m['data'])
                 elif directive == 'eoblk':
-                    self.draw_block_bracket(current_x, block_y_start)
+                    #self.draw_block_bracket(current_x, block_y_start)
+                    pass
                 elif directive == 'soc':
                     self.update_y_loc(self.blockid_spacing)
                     block_y_start = self.y_loc - self.line_spacing/2
@@ -662,7 +651,7 @@ class SongRenderer:
                     self.c.drawString(minimum_x, self.y_loc, "Chorus")
                     current_x = minimum_x + self.indent
                 elif directive == 'eoc':
-                    self.draw_block_bracket(current_x, block_y_start)
+                    #self.draw_block_bracket(current_x, block_y_start)
                     current_x = minimum_x
                 elif directive == 'sot':
                     self.update_y_loc(self.blockid_spacing)
@@ -678,7 +667,7 @@ class SongRenderer:
                     self.c.drawString(minimum_x, self.y_loc, "Bridge")
                     current_x = minimum_x + self.indent
                 elif directive == 'eob':
-                    self.draw_block_bracket(current_x, block_y_start)
+                    #self.draw_block_bracket(current_x, block_y_start)
                     current_x = minimum_x
                 elif directive == 'timing':
                     top, bottom = m['data'].split("/")
@@ -702,33 +691,27 @@ class SongRenderer:
                                 fontSize=fs,
                                 fontName=fn, textAnchor='middle'))
                     d_x = self.pre_padding + timing_width
-                    if not processbars: # need some extra space since the bar won't be present
-                        d_x += self.post_padding
+                    d_x += self.post_padding # EXTRA PADDING
             elif m['type'] == 'bar':
                 ##d.add(Line(d_x,timing_line_y, timing_width,timing_line_y, strokeWidth=2))
-                if processbars:
-                    d_x = self.draw_bar(m['style'], m['repeat'], d, d_x, minimum_line_height)
-                    add_first_barline = 0
-                    self.bar_drawn_last = 1
-                else:
-                    d_x += space_width
+                d_x = self.draw_bar(m['style'], m['repeat'], d, d_x, minimum_line_height)
+                add_first_barline = 0
+                self.bar_drawn_last = 1
             elif m['type'] == 'music': # Normal lyrics, chords
                 if tab:
                     self.update_y_loc(self.config.fonts.tab_size)
                     self.c.setFont(self.config.fonts.tab_face, self.config.fonts.tab_size)
                     self.c.drawString(minimum_x, self.y_loc, m['data'])
-                    continue
-                self.bar_drawn_last = 0
-                if add_first_barline:
-                    d_x = self.draw_bar("|", "", d, d_x, minimum_line_height)
-                    add_first_barline = 0
+                    continued
+                self.dbar_drawn_last = 0
                 last_chord = None
-                for chordname, lyrics in m['data']:
+                grouping_start = None
+                for chordname, lyrics, grouping_status in m['data']:
                     chord_length = 0
-                    symbol = 0
+                    symbol = 0# symbol indicates whether to use a font or render a special symbol
                     if last_chord == chordname:
                         chordname = "/"
-                        symbol = 1
+                        symbol = 1 
                     elif chordname == '/':
                         symbol = 1
                     else:
@@ -739,6 +722,8 @@ class SongRenderer:
                         capofn = self.config.fonts.capo_face
                         capofs = self.config.fonts.capo_size
                     if chordname:
+                        if grouping_status == '<':
+                            grouping_start = d_x
                         # draw chords
                         if symbol:
                             #cfn = self.config.fonts.slash_face
@@ -760,6 +745,37 @@ class SongRenderer:
                             else:
                                 chord_width2 = 0
                             chord_width = max(chord_width1, chord_width2)
+                        if grouping_status == '>': # Draw chord grouping symbols
+                            grouping_style = 'underline' # temporary hack to switch between methods
+                            if grouping_style == 'underline':
+                                grouping_y = self.lyrics_spacing*self.grouping_y_placement
+                                ydelta = self.lyrics_spacing - grouping_y
+                                d.add(Line(grouping_start, grouping_y, 
+                                       d_x+chord_width, grouping_y,
+                                       strokeWidth=.75, strokeLineCap=1))
+                                d.add(Line(
+                                       d_x+chord_width, grouping_y,
+                                       d_x+chord_width+ydelta, self.lyrics_spacing,
+                                       strokeWidth=.75, strokeLineCap=1))
+                                d.add(Line(
+                                       grouping_start, grouping_y, 
+                                       grouping_start-ydelta, self.lyrics_spacing,
+                                       strokeWidth=.75, strokeLineCap=1))
+                            elif grouping_style == 'overline':
+                                grouping_y = self.lyrics_spacing+self.chords_spacing
+                                ydelta = self.chords_spacing*0.1
+                                d.add(Line(grouping_start, grouping_y, 
+                                       d_x+chord_width, grouping_y,
+                                       strokeWidth=.75))
+                                d.add(Line(
+                                       d_x+chord_width, grouping_y,
+                                       d_x+chord_width, grouping_y-ydelta,
+                                       strokeWidth=.75))
+                                d.add(Line(
+                                       grouping_start, grouping_y, 
+                                       grouping_start, grouping_y-ydelta,
+                                       strokeWidth=.75))
+                            grouping_start = None
                         ##self.c.drawString(current_x,self.y_loc+self.lyrics_spacing, chord)
                     else:
                         chord_width = 0
@@ -771,7 +787,7 @@ class SongRenderer:
                     ##self.c.drawString(current_x, self.y_loc, lyrics)
                     lyrics_width = self.c.stringWidth(lyrics, self.config.fonts.lyrics_face, self.config.fonts.lyrics_size)
                     if chord_width:
-                        d_x = d_x + max(chord_width+space_width, lyrics_width, minimum_beat_width)
+                        d_x = d_x + max(chord_width+self.space_width, lyrics_width, minimum_beat_width)
                     else:
                         d_x = d_x + lyrics_width
     def draw_block_bracket(self, x, y):
@@ -781,19 +797,17 @@ class SongRenderer:
         self.c.line(x, y, bracket_legs, y)
         self.c.line(x, bottom, bracket_legs, bottom)
     def draw_bar(self, style, repeat, drawing, x, height):
-        if self.repeatbracket:
-            drawing.add(Line(self.repeatbracket,  self.repeat_bracket_ymax, x,
-                 self.repeat_bracket_ymax, strokeWidth=1))
-            self.repeatbracket = 0
         repeat_bar_space = 2
-        x = self.pre_padding + x 
+        #x = self.pre_padding + x 
+        x += self.space_width
         bar_width = 1.2
         bar_height = height/2.0
         y_start = height/2.0 # experimental
         if style == "|":
-            drawing.add(Line(x, y_start, x, height, strokeWidth=bar_width))
+            pass
+            #drawing.add(Line(x, y_start, x, height, strokeWidth=bar_width))
             repeat_xloc = x
-            x += self.post_padding
+            #x += self.post_padding
         elif style == "|:":
             repeat_xloc = x
             drawing.add(Line(x, y_start, x, height, strokeWidth=bar_width))
@@ -839,13 +853,14 @@ class SongRenderer:
                                     strokeWidth=0.5))
             x += self.post_padding
         if repeat:
-            self.repeatbracket = repeat_xloc
             self.d_height = self.repeat_bracket_ymax
             drawing.add(Line(repeat_xloc, self.repeat_bracket_ymin,
                     repeat_xloc, self.repeat_bracket_ymax, strokeWidth=1))
             drawing.add(String(repeat_xloc, self.repeat_bracket_ymin, " "+repeat,
                                         fontName=self.config.fonts.repeat_face,
                                         fontSize=self.config.fonts.repeat_size))
+            drawing.add(Line(x,  self.repeat_bracket_ymax, x+bar_height*2,
+                 self.repeat_bracket_ymax, strokeWidth=1))
         return x
     def update_y_loc(self, amount):
         self.y_loc = self.y_loc - amount
