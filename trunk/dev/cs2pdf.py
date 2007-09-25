@@ -138,7 +138,8 @@ class ChordProPlusFile:
     """
     def __init__(self,filename):
         self.filename = filename
-        self.chordpro_re = re.compile(r"(\[.+?\])|(( *:*\|:*)(\(.+?\))* *)")
+        #self.chordpro_re = re.compile(r"(\[.+?\])|(( *:*\|:*)(\(.+?\))* *)")
+        self.chordpro_re = re.compile(r"(\[.+?\])|(( *:*\|:*)(\(.+?\))* *)|(<|>)")
         try:
             self.file = file(filename,'r')
         except:
@@ -169,6 +170,8 @@ class ChordProPlusFile:
         self.measures.append({'type':'directive', 'directive':directive, 'data':data})
     def _music_measure(self, data):
         self.measures.append({'type':'music', 'data':data})
+    def _chordgroup(self, value):
+        self.measures.append({'type':'chordgroup', 'value':value})
     def _bar(self, style, repeat=None):
         if repeat:
             repeat = repeat[1:-1]
@@ -210,6 +213,8 @@ class ChordProPlusFile:
                             chord = ""
                         #print matches[2].strip(),matches[3]
                         self._bar(matches[2].strip(),matches[3]) #args: '|:', '(1. 3.)'
+                    elif matches[4]: #chord grouper
+                        self._chordgroup(matches[4]):
                     current_position = end
                 if chord or line[current_position:]:
                     data.append((chord, line[current_position:]))
@@ -913,16 +918,6 @@ def process_file(f):
         p = ChordPro2PDF(root+'.pdf')
         p.add_song(f)
         p.save()
-
-#~ def errorGUI(message):
-    #~ import wx
-    #~ class StandAloneErrorDialog(wx.App):
-        #~ def OnInit(self):
-            #~ frame = wx.MessageDialog(None, message, 'Chordsheet Generation Error', wx.OK | wx.ICON_ERROR)
-            #~ frame.ShowModal()
-            #~ return True
-    #~ err = StandAloneErrorDialog(0)
-    #~ err.MainLoop()
 
 if __name__ == '__main__':
     #usage = "%prog [options] <file>"
