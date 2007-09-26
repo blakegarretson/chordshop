@@ -161,7 +161,7 @@ class Chord:
     def update_name(self):
         l = [self.root, self.chordtype]
         if self.bass:
-            l.append(self.bass)
+            l.extend(["/",self.bass])
         self.name = "".join(l)
     def get_primary_chord(self, name):
         return chord_aliases.get(name,name)
