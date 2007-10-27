@@ -33,7 +33,7 @@ RT_MANIFEST = 24
 opts = {"py2exe":
             {
             'excludes' : ['Tkinter', '_imagingtk'],
-            'dist_dir': '../win_releases/v0.4.1',
+            'dist_dir': 'win_release/v0.5',
             "compressed": 1,
             "optimize": 2,
             "dll_excludes": ['tk84.dll', 'tcl84.dll', '_ssl.pyd',
@@ -55,7 +55,7 @@ cs2pdf_gui_wx = dict(
     )
 
 setup(
-    version = "0.4.1",
+    version = "0.5",
     options = opts,
     name = "chordshop",
     zipfile = r"lib\library.zip",
