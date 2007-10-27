@@ -4,7 +4,7 @@ join = os.path.join
 import build_py_release
 ver = build_py_release.ver
 setup_dir = "setup_temp"
-release_dir = "../win_releases/v%s" % ver
+release_dir = "win_release/v%s" % ver
 
 try:
     shutil.rmtree(release_dir)
