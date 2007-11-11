@@ -592,7 +592,6 @@ class SongRenderer:
         add_first_barline = 0
         # set initial variables
         self.repeat_circle_radius = 1.2
-        self.pre_padding = 0 # used to be 8
         self.post_padding = self.space_width*2
         self.grouping_y_placement = 0.85
         minimum_beat_width = self.c.stringWidth("GG", self.config.fonts.chords_face, self.config.fonts.chords_size)
@@ -618,8 +617,11 @@ class SongRenderer:
         # create first Drawing, this is a drawing of one line at a time.
         d = Drawing(maximum_line_width, maximum_line_height)
         self.d_height = minimum_line_height
-        d_x_indent = 10
-        d_x = 0 # this is the current x location in the drawing
+        if self.config.blockmarkers:
+            d_x_indent = 6
+        else:
+            d_x_indent = 0
+        d_x = d_x_indent # this is the current x location in the drawing
         #
         for m in self.song.measures:
             if m['type'] == 'directive':
@@ -632,7 +634,7 @@ class SongRenderer:
                     self.update_y_loc(self.d_height + self.line_spacing)
                     renderPDF.draw(d, self.c, current_x, self.y_loc)
                     self.d_height = minimum_line_height
-                    d_x = 0 # this is the current x location in the drawing
+                    d_x = d_x_indent # this is the current x location in the drawing
                     d = Drawing(maximum_line_width, maximum_line_height)
                 elif directive == 'blank':
                     self.update_y_loc(self.chords_spacing*1.5)
@@ -642,7 +644,7 @@ class SongRenderer:
                     self.c.setFont(self.config.fonts.blockid_face, self.config.fonts.blockid_size)
                     self.c.drawString(minimum_x, self.y_loc, m['data'])
                 elif directive == 'eoblk':
-                    #self.draw_block_bracket(current_x, block_y_start)
+                    self.draw_block_bracket(current_x, block_y_start)
                     pass
                 elif directive == 'soc':
                     self.update_y_loc(self.blockid_spacing)
@@ -651,7 +653,7 @@ class SongRenderer:
                     self.c.drawString(minimum_x, self.y_loc, "Chorus")
                     current_x = minimum_x + self.indent
                 elif directive == 'eoc':
-                    #self.draw_block_bracket(current_x, block_y_start)
+                    self.draw_block_bracket(current_x, block_y_start)
                     current_x = minimum_x
                 elif directive == 'sot':
                     self.update_y_loc(self.blockid_spacing)
@@ -667,7 +669,7 @@ class SongRenderer:
                     self.c.drawString(minimum_x, self.y_loc, "Bridge")
                     current_x = minimum_x + self.indent
                 elif directive == 'eob':
-                    #self.draw_block_bracket(current_x, block_y_start)
+                    self.draw_block_bracket(current_x, block_y_start)
                     current_x = minimum_x
                 elif directive == 'timing':
                     top, bottom = m['data'].split("/")
@@ -679,18 +681,19 @@ class SongRenderer:
                     timing_halfwidth = timing_width/2.0
                     timing_y_spacing = 2
                     timing_line_y = fs
-                    d.add(String(self.pre_padding+timing_halfwidth,0, bottom, fontSize=fs, fontName=fn, textAnchor='middle'))
-                    d.add(Line(self.pre_padding,
+                    timing_padding = d_x_indent
+                    d.add(String(timing_padding+timing_halfwidth,0, bottom, fontSize=fs, fontName=fn, textAnchor='middle'))
+                    d.add(Line(timing_padding,
                                 timing_line_y,
-                                self.pre_padding + timing_width,
+                                timing_padding + timing_width,
                                 timing_line_y,
                                 strokeWidth=1.5, strokeLineCap=1))
-                    d.add(String(self.pre_padding+timing_halfwidth,
+                    d.add(String(timing_padding+timing_halfwidth,
                                 timing_line_y + timing_y_spacing,
                                 top,
                                 fontSize=fs,
                                 fontName=fn, textAnchor='middle'))
-                    d_x = self.pre_padding + timing_width
+                    d_x = timing_padding + timing_width
                     d_x += self.post_padding # EXTRA PADDING
             elif m['type'] == 'bar':
                 ##d.add(Line(d_x,timing_line_y, timing_width,timing_line_y, strokeWidth=2))
@@ -804,11 +807,14 @@ class SongRenderer:
                     else:
                         d_x = d_x + lyrics_width
     def draw_block_bracket(self, x, y):
-        bottom = self.y_loc-self.line_spacing/2
-        bracket_legs = x+3
-        self.c.line(x, y, x, bottom)
-        self.c.line(x, y, bracket_legs, y)
-        self.c.line(x, bottom, bracket_legs, bottom)
+        if self.config.blockmarkers:
+            bottom = self.y_loc-self.line_spacing/2
+            bracket_legs = x+3
+            self.c.setLineCap(1)
+            self.c.setLineJoin(1)   
+            self.c.setLineWidth(1.2)   
+            lines = [(x, y, x, bottom), (x, y, bracket_legs, y), (x, bottom, bracket_legs, bottom)]
+            self.c.lines(lines)
     def draw_bar(self, style, repeat, drawing, x, height):
         repeat_bar_space = 2
         #x = self.pre_padding + x 

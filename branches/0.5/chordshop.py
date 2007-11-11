@@ -575,8 +575,10 @@ class ChordProPlusEditor(wx.Panel):
             r"^(?:\s*(\(*[ABCDEFG][#/\-+a-zA-Z0-9]*\)*)(?=$|\s+))+\s*$")
         self.crd_re = re.compile(r"[ABCDEFG][#/\-+a-zA-Z0-9]*")
         #
+        hbox = wx.BoxSizer(wx.HORIZONTAL)
         box = wx.BoxSizer(wx.VERTICAL)
-        self.editor = TextEditor(self, -1)
+        p = wx.Panel(self, -1)
+        self.editor = TextEditor(p, -1)
         self.editor.SetEOLMode(wx.stc.STC_EOL_LF)
         self.editor.SetUseTabs(False) # tabs are spaces
         if config.editor.showeol:
@@ -588,11 +590,26 @@ class ChordProPlusEditor(wx.Panel):
         self.editor.StyleSetSpec(4, "size:%d,bold,face:%s,fore:#038103" % (pb, face3))
         self.editor.StyleSetSpec(5, "size:%d,bold,face:%s,fore:#6e0381" % (pb, face3))
         #
+        self.sidepanel = wx.Panel(p, -1, size=(150,-1))
+        self.makesidepanel()
+        hbox.Add(self.sidepanel, 0, wx.EXPAND)
+        hbox.Add(self.editor, 1, wx.EXPAND)
+        p.SetAutoLayout(1)
+        p.SetSizer(hbox)
+        
         self.makeToolbar()
         box.Add(self.toolbar, 0, wx.EXPAND)
-        box.Add(self.editor, 1, wx.EXPAND)
+        box.Add(p, 1, wx.EXPAND)
+
         self.SetAutoLayout(1)
         self.SetSizer(box)
+    def makesidepanel(self):
+        filebox = wx.StaticBoxSizer( wx.StaticBox(self.sidepanel, -1, "File Operations"), wx.VERTICAL )
+        filebox.Add((-1,10))
+        b = wx.Button(self.sidepanel, -1, "New")
+        filebox.Add(b)
+        self.Bind(wx.EVT_BUTTON, self.newFile, b)
+        b.SetToolTipString("This is a Hello button...")
     def makeToolbar(self):
         self.toolbar = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
                        wx.TB_HORIZONTAL | wx.TB_NODIVIDER | wx.TB_FLAT )
