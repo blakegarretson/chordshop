@@ -98,7 +98,7 @@ os.system("python setup.py py2exe")
 os.chdir(release_dir)
 zipfilename = "chordshop_win_%s.zip" % ver
 exefilename = "chordshop_%s.exe" % ver
-os.system("7za a -tzip -r -mx=9 ..\%s *.*" % zipfilename)
+os.system("7z a -tzip -r -mx=9 ..\%s *.*" % zipfilename)
 os.chdir("..")
 # ###################################################### InnoSetup
 iss_text = '''[Setup]
