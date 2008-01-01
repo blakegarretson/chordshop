@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 Chordshop
-Copyright (C) 2004-2007 Blake T. Garretson
+Copyright (C) 2004-2008 Blake T. Garretson
 
 Email: blake@blakeg.net
 
@@ -577,8 +577,9 @@ class ChordProPlusEditor(wx.Panel):
         #
         hbox = wx.BoxSizer(wx.HORIZONTAL)
         box = wx.BoxSizer(wx.VERTICAL)
-        p = wx.Panel(self, -1)
-        self.editor = TextEditor(p, -1)
+        #p = wx.Panel(self, -1)
+        #self.editor = TextEditor(p, -1)
+        self.editor = TextEditor(self, -1)
         self.editor.SetEOLMode(wx.stc.STC_EOL_LF)
         self.editor.SetUseTabs(False) # tabs are spaces
         if config.editor.showeol:
@@ -590,26 +591,78 @@ class ChordProPlusEditor(wx.Panel):
         self.editor.StyleSetSpec(4, "size:%d,bold,face:%s,fore:#038103" % (pb, face3))
         self.editor.StyleSetSpec(5, "size:%d,bold,face:%s,fore:#6e0381" % (pb, face3))
         #
-        self.sidepanel = wx.Panel(p, -1, size=(150,-1))
+        self.sidepanel = wx.Panel(self, -1, size=(300,-1))
+        #self.sidepanel = wx.Panel(p, -1, size=(150,-1))
         self.makesidepanel()
         hbox.Add(self.sidepanel, 0, wx.EXPAND)
         hbox.Add(self.editor, 1, wx.EXPAND)
-        p.SetAutoLayout(1)
-        p.SetSizer(hbox)
+        #p.SetAutoLayout(1)
+        #p.SetSizer(hbox)
         
-        self.makeToolbar()
-        box.Add(self.toolbar, 0, wx.EXPAND)
-        box.Add(p, 1, wx.EXPAND)
+        #self.makeToolbar()
+        #box.Add(self.toolbar, 0, wx.EXPAND)
+        
+        #box.Add(p, 1, wx.EXPAND)
+        box.Add(hbox, 1, wx.EXPAND)
 
         self.SetAutoLayout(1)
         self.SetSizer(box)
+        #self.Fit()
+        
     def makesidepanel(self):
-        filebox = wx.StaticBoxSizer( wx.StaticBox(self.sidepanel, -1, "File Operations"), wx.VERTICAL )
-        filebox.Add((-1,10))
-        b = wx.Button(self.sidepanel, -1, "New")
-        filebox.Add(b)
-        self.Bind(wx.EVT_BUTTON, self.newFile, b)
-        b.SetToolTipString("This is a Hello button...")
+        mainbox = wx.BoxSizer(wx.VERTICAL)
+        border = 4
+        
+        filebox = wx.StaticBoxSizer( wx.StaticBox(self, -1, "File" ), wx.HORIZONTAL)
+        for bmp, tip, func in [('new', "New File", self.newFile), 
+                         ('open', "Open File...", self.loadFileDialog), 
+                         ('save', "Save File", self.saveFile), 
+                         ('saveas', "Save File As...", self.saveFileDialog), 
+                         ('savepdf', "Export PDF", self.generateSinglePDF), 
+                         ]:
+            b = wx.BitmapButton(self.sidepanel, -1, get_icon(bmp))
+            b.SetToolTipString(tip)
+            self.Bind(wx.EVT_BUTTON, func, b)    
+            filebox.Add(b)
+        mainbox.Add(filebox, border=border, flag=wx.TOP|wx.RIGHT|wx.LEFT )
+
+        convertbox = wx.StaticBoxSizer( wx.StaticBox(self, -1, "Convert" ), wx.HORIZONTAL)
+        for bmp, tip, func in [('chordpro', "Convert from CRD to ChordPro Format", self.link), 
+                                ('chordpro', "Convert from ChordPro  to CRD Format", self.link), 
+                                ]:
+            b = wx.BitmapButton(self.sidepanel, -1, get_icon(bmp))
+            b.SetToolTipString(tip)
+            self.Bind(wx.EVT_BUTTON, func, b)    
+            convertbox.Add(b)
+        mainbox.Add(convertbox, border=border, flag=wx.LEFT )        
+
+        songelementbox = wx.StaticBoxSizer( wx.StaticBox(self, -1, "Song Elements" ), wx.HORIZONTAL)
+        for bmp, tip, func in [('title', "Assign Title", self.convert_to_title), 
+                                ('subtitle', "Assign Title", self.convert_to_subtitle),
+                                ('comment', "Assign Title", self.convert_to_comment),
+                                ]:
+            b = wx.BitmapButton(self.sidepanel, -1, get_icon(bmp))
+            b.SetToolTipString(tip)
+            self.Bind(wx.EVT_BUTTON, func, b)    
+            songelementbox.Add(b)
+        mainbox.Add(songelementbox, border=border, flag=wx.LEFT )        
+
+        
+        transposebox = wx.StaticBoxSizer( wx.StaticBox(self, -1, "Modify Song" ), wx.HORIZONTAL)
+        for bmp, tip, func in [('down', "Transpose Down", self.transpose_down), 
+                                ('up', "Transpose Up", self.transpose_up),
+                                ('flat', "Use All Flats", self.use_flats),
+                                ('sharp', "Use All Sharps", self.use_sharps),
+                                ]:
+            b = wx.BitmapButton(self.sidepanel, -1, get_icon(bmp))
+            b.SetToolTipString(tip)
+            self.Bind(wx.EVT_BUTTON, func, b)    
+            transposebox.Add(b)
+        mainbox.Add(transposebox, border=border, flag=wx.LEFT )        
+        
+        self.sidepanel.SetAutoLayout(1)
+        self.sidepanel.SetSizer(mainbox)
+
     def makeToolbar(self):
         self.toolbar = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
                        wx.TB_HORIZONTAL | wx.TB_NODIVIDER | wx.TB_FLAT )
@@ -961,10 +1014,10 @@ class AboutViewer(wx.html.HtmlWindow):
             <img src="docs/images/cs_shadow.png" />
             <dev align=right><font size=+3><b><i>%(version)s</i></b></font></div>
             <br />
-            Copyright (C) 2004 Blake T. Garretson<br />All Rights Reserved.
+            Copyright (C) 2004-2008 Blake T. Garretson<br />All Rights Reserved.
             <br />
-            <a href="mailto:blakeg@freeshell.org">blakeg@freeshell.org</a> --
-            <a href="http://blakeg.freeshell.org">http://blakeg.freeshell.org</a>
+            <a href="mailto:blake@blakeg.net">blake@blakeg.net</a> --
+            <a href="http://www.chordshop.com">http://www.chordshop.com</a>
             <br /><br />
             Go to <a href="http://chordshop.sourceforge.net">http://chordshop.sourceforge.net</a>
             <br />
@@ -1050,11 +1103,11 @@ class Notebook(wx.Notebook):
 class MainFrame(wx.Frame):
     def __init__(self, parent, ID, title):
         wx.Frame.__init__(self, parent, ID, title,
-                         wx.DefaultPosition, wx.Size(760, 600))
+                         wx.DefaultPosition, wx.Size(800, 600))
         self.frame = self
         self.CreateStatusBar()
         self.SetStatusText("Welcome to Chordshop")
-        self.SetMenuBar(self.make_menubar())
+        #self.SetMenuBar(self.make_menubar())
         #
         self.chordnotebook = Notebook(self,wx.NewId())
         #
@@ -1091,6 +1144,7 @@ class Chordshop(wx.App):
         frame = MainFrame(None, -1, conf.title_str)
         self.loadFile = frame.chordnotebook.cppeditor.loadFile
         self.SetTopWindow(frame)
+        frame.SetSizeHints(400,400) #sets minimum size
         frame.Fit()
         frame.CenterOnScreen()
         frame.Show()
