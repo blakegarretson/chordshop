@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 """
 Chordshop
-Copyright (C) 2004-2006 Blake T. Garretson
+Copyright (C) 2004-2007 Blake T. Garretson
 
-Email: blakeg@freeshell.org
+Email: blake@blakeg.net
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
