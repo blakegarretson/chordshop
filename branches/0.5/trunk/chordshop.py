@@ -646,18 +646,20 @@ class ChordProPlusEditor(wx.Panel):
                                 ('subtitle', "Assign subtitle", self.convert_to_subtitle),
                                 ('markblock', "Mark selected block as a chorus, bridge, tab, or named block", self.convert_to_block),                                
                                 ('comment', "Add comment", self.convert_to_comment),
-                                ('credits', "Add credits", self.convert_to_comment),
+                                ('timing', "Add timing", self.convert_to_comment),
                                 ), 
                                 (#ROW 2
-                                ('timing', "Add timing", self.convert_to_comment),
                                 ('order', "Define order of play", self.convert_to_comment),
+                                ('credits', "Add credits", self.convert_to_comment),
+                                ('copyright', "Add copyright information", self.convert_to_comment),
                                 )            
                                 ])   
                                      
-        make_group("Modify Song", [(('down', "Transpose Down", self.transpose_down), 
-                                ('up', "Transpose Up", self.transpose_up),
-                                ('flat', "Use All Flats", self.use_flats),
-                                ('sharp', "Use All Sharps", self.use_sharps)  
+        make_group("Modify Song", [(('down', "Transpose down", self.transpose_down), 
+                                ('up', "Transpose up", self.transpose_up),
+                                ('flat', "Use all flats", self.use_flats),
+                                ('sharp', "Use all sharps", self.use_sharps),  
+                                ('prefsharpflat', "Use prefered chord names (sharps and flats mixed)", self.use_sharps)  
                                 )          
                                 ])        
         
