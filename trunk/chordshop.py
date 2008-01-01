@@ -611,94 +611,59 @@ class ChordProPlusEditor(wx.Panel):
         
     def makesidepanel(self):
         mainbox = wx.BoxSizer(wx.VERTICAL)
-        border = 4
         
-        filebox = wx.StaticBoxSizer( wx.StaticBox(self, -1, "File" ), wx.HORIZONTAL)
-        for bmp, tip, func in [('new', "New File", self.newFile), 
+        vboxes = []
+        rowboxes = []         
+        def make_group(title, data, border=4, borderflags=wx.LEFT|wx.RIGHT):
+            vboxes.append(wx.StaticBoxSizer( wx.StaticBox(self, -1, title ), wx.VERTICAL))
+            for row in data:
+                rowboxes.append(wx.BoxSizer(wx.HORIZONTAL))
+                for bmp, tip, func in row:
+                    b = wx.BitmapButton(self.sidepanel, -1, get_icon(bmp))
+                    b.SetToolTipString(tip)
+                    self.Bind(wx.EVT_BUTTON, func, b)    
+                    rowboxes[-1].Add(b)
+                vboxes[-1].Add(rowboxes[-1])
+            mainbox.Add(vboxes[-1], border=border, flag=borderflags|wx.EXPAND )        
+                    
+        make_group("File", [(
+                            ('new', "New File", self.newFile), 
                          ('open', "Open File...", self.loadFileDialog), 
                          ('save', "Save File", self.saveFile), 
                          ('saveas', "Save File As...", self.saveFileDialog), 
-                         ('savepdf', "Export PDF", self.generateSinglePDF), 
-                         ]:
-            b = wx.BitmapButton(self.sidepanel, -1, get_icon(bmp))
-            b.SetToolTipString(tip)
-            self.Bind(wx.EVT_BUTTON, func, b)    
-            filebox.Add(b)
-        mainbox.Add(filebox, border=border, flag=wx.TOP|wx.RIGHT|wx.LEFT )
-
-        convertbox = wx.StaticBoxSizer( wx.StaticBox(self, -1, "Convert" ), wx.HORIZONTAL)
-        for bmp, tip, func in [('to_pro', "Convert from CRD to ChordPro Format", self.link), 
-                                ('to_crd', "Convert from ChordPro  to CRD Format", self.link), 
-                                ]:
-            b = wx.BitmapButton(self.sidepanel, -1, get_icon(bmp))
-            b.SetToolTipString(tip)
-            self.Bind(wx.EVT_BUTTON, func, b)    
-            convertbox.Add(b)
-        mainbox.Add(convertbox, border=border, flag=wx.LEFT )        
-
-        songelementbox = wx.StaticBoxSizer( wx.StaticBox(self, -1, "Song Elements" ), wx.HORIZONTAL)
-        for bmp, tip, func in [('title', "Assign Title", self.convert_to_title), 
-                                ('subtitle', "Assign Subtitle", self.convert_to_subtitle),
-                                ('comment', "Add Comment", self.convert_to_comment),
-                                ]:
-            b = wx.BitmapButton(self.sidepanel, -1, get_icon(bmp))
-            b.SetToolTipString(tip)
-            self.Bind(wx.EVT_BUTTON, func, b)    
-            songelementbox.Add(b)
-        mainbox.Add(songelementbox, border=border, flag=wx.LEFT )        
-
-        
-        transposebox = wx.StaticBoxSizer( wx.StaticBox(self, -1, "Modify Song" ), wx.HORIZONTAL)
-        for bmp, tip, func in [('down', "Transpose Down", self.transpose_down), 
+                         ('savepdf', "Export PDF", self.generateSinglePDF)
+                                )
+                                ], borderflags=wx.TOP|wx.RIGHT|wx.LEFT)   
+                                     
+        make_group("Convert", [(
+                            ('to_pro', "Convert from CRD to ChordPro Format", self.link), 
+                            ('to_crd', "Convert from ChordPro  to CRD Format", self.link)
+                                )
+                                ])        
+                
+        make_group("Song Elements", [(#ROW 1
+                                ('title', "Assign title", self.convert_to_title), 
+                                ('subtitle', "Assign subtitle", self.convert_to_subtitle),
+                                ('markblock', "Mark selected block as a chorus, bridge, tab, or named block", self.convert_to_block),                                
+                                ('comment', "Add comment", self.convert_to_comment),
+                                ('credits', "Add credits", self.convert_to_comment),
+                                ), 
+                                (#ROW 2
+                                ('timing', "Add timing", self.convert_to_comment),
+                                ('order', "Define order of play", self.convert_to_comment),
+                                )            
+                                ])   
+                                     
+        make_group("Modify Song", [(('down', "Transpose Down", self.transpose_down), 
                                 ('up', "Transpose Up", self.transpose_up),
                                 ('flat', "Use All Flats", self.use_flats),
-                                ('sharp', "Use All Sharps", self.use_sharps),
-                                ]:
-            b = wx.BitmapButton(self.sidepanel, -1, get_icon(bmp))
-            b.SetToolTipString(tip)
-            self.Bind(wx.EVT_BUTTON, func, b)    
-            transposebox.Add(b)
-        mainbox.Add(transposebox, border=border, flag=wx.LEFT )        
+                                ('sharp', "Use All Sharps", self.use_sharps)  
+                                )          
+                                ])        
         
         self.sidepanel.SetAutoLayout(1)
         self.sidepanel.SetSizer(mainbox)
 
-    def makeToolbar(self):
-        self.toolbar = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
-                       wx.TB_HORIZONTAL | wx.TB_NODIVIDER | wx.TB_FLAT )
-        self.toolbar.SetToolBitmapSize(wx.Size(24,24))
-        i = self.toolbar.AddSimpleTool(-1, get_icon('new'), "New", "Long help for 'New'")
-        self.Bind(wx.EVT_TOOL, self.newFile, i)
-        i = self.toolbar.AddSimpleTool(-1, get_icon('open'), "Open", "Long help for 'Open'")
-        self.Bind(wx.EVT_TOOL, self.loadFileDialog, i)
-        i = self.toolbar.AddSimpleTool(-1, get_icon('save'), "Save", "Long help for 'Save'")
-        self.Bind(wx.EVT_TOOL, self.saveFile, i)
-        i = self.toolbar.AddSimpleTool(-1, get_icon('saveas'), "Save As", "Long help for 'Save As'")
-        self.Bind(wx.EVT_TOOL, self.saveFileDialog, i)
-        i = self.toolbar.AddSimpleTool(-1, get_icon('savepdf'), "Generate PDF", "Generate PDF")
-        self.Bind(wx.EVT_TOOL, self.generateSinglePDF, i)
-        i = self.toolbar.AddSimpleTool(-1, get_icon('down'), "Transpose Down", "Long help for 'Transpose Down'")
-        self.Bind(wx.EVT_TOOL, self.transpose_down, i)
-        i = self.toolbar.AddSimpleTool(-1, get_icon('up'), "Transpose Up", "Long help for 'Transpose Up'")
-        self.Bind(wx.EVT_TOOL, self.transpose_up, i)
-        i = self.toolbar.AddSimpleTool(-1, get_icon('chordpro'), "Crd to Chord Pro", "Convert .crd format to Chord Pro.")
-        self.Bind(wx.EVT_TOOL, self.link, i)
-        i = self.toolbar.AddSimpleTool(-1, get_icon('sharp'), "Use Sharps", "Use all sharps")
-        self.Bind(wx.EVT_TOOL, self.use_sharps, i)
-        i = self.toolbar.AddSimpleTool(-1, get_icon('flat'), "Use Flats", "Use all flats")
-        self.Bind(wx.EVT_TOOL, self.use_flats, i)
-        i = self.toolbar.AddSimpleTool(-1, get_icon('title'), "Title", "Convert line to title")
-        self.Bind(wx.EVT_TOOL, self.convert_to_title, i)
-        i = self.toolbar.AddSimpleTool(-1, get_icon('subtitle'), "Subtitle", "Convert line to subtitle")
-        self.Bind(wx.EVT_TOOL, self.convert_to_subtitle, i)
-        i = self.toolbar.AddSimpleTool(-1, get_icon('comment'), "Comment", "Convert line to comment")
-        self.Bind(wx.EVT_TOOL, self.convert_to_comment, i)
-        self.markblockID = wx.NewId()
-        i = self.toolbar.AddSimpleTool(self.markblockID, get_icon('markblock'), "Mark Block", "Mark selected block as a chorus, bridge, tab, or named block")
-        self.Bind(wx.EVT_TOOL, self.convert_to_block, i)
-        #self.toolbar.AddControl(wx.Button(self.toolbar, wx.NewId(), "Link"))
-        self.toolbar.AddSeparator()
-        self.toolbar.Realize()
     def newFile(self, event):
         cont = 1
         if self.editor.modified:
@@ -806,8 +771,6 @@ class ChordProPlusEditor(wx.Panel):
                     self.loadFile(paths[0])
                     #self.currentfile = paths[0]
     def convert_to_block(self, event):
-        tb = event.GetEventObject()
-        p = tb.GetToolPos(self.markblockID)
         if not hasattr(self, "popupID1"):
             self.popupID1 = wx.NewId()
             self.popupID2 = wx.NewId()
@@ -822,11 +785,8 @@ class ChordProPlusEditor(wx.Panel):
         menu.Append(self.popupID2, "Bridge")
         menu.Append(self.popupID3, "Tab")
         menu.Append(self.popupID4, "Named Block")
-        self.PopupMenu(menu, (24*p,24))
+        self.PopupMenu(menu)
         menu.Destroy()
-        #win = MarkBlockChooser(self.parent.parent)
-        #win.CenterOnParent(wx.BOTH)
-        #win.Show(True)
     def convert_to_chorus(self, event):
         self._wrap_lines("{soc}\n","\n{eoc}")
     def convert_to_bridge(self, event):
