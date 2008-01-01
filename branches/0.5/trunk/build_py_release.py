@@ -36,7 +36,7 @@ if __name__ == '__main__':
     release_dir = "release/v%s" % ver
     go(release_dir)
     os.chdir(release_dir)
-    os.system("7za a -tzip -r -mm=BZip2 -mx=9 ..\chordshop_py_%s.zip *.*" % ver)
+    os.system("7z a -tzip -r -mm=BZip2 -mx=9 ..\chordshop_py_%s.zip *.*" % ver)
     raw_input("Done.")
 
 

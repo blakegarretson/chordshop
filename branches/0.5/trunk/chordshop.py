@@ -627,8 +627,8 @@ class ChordProPlusEditor(wx.Panel):
         mainbox.Add(filebox, border=border, flag=wx.TOP|wx.RIGHT|wx.LEFT )
 
         convertbox = wx.StaticBoxSizer( wx.StaticBox(self, -1, "Convert" ), wx.HORIZONTAL)
-        for bmp, tip, func in [('chordpro', "Convert from CRD to ChordPro Format", self.link), 
-                                ('chordpro', "Convert from ChordPro  to CRD Format", self.link), 
+        for bmp, tip, func in [('to_pro', "Convert from CRD to ChordPro Format", self.link), 
+                                ('to_crd', "Convert from ChordPro  to CRD Format", self.link), 
                                 ]:
             b = wx.BitmapButton(self.sidepanel, -1, get_icon(bmp))
             b.SetToolTipString(tip)
@@ -638,8 +638,8 @@ class ChordProPlusEditor(wx.Panel):
 
         songelementbox = wx.StaticBoxSizer( wx.StaticBox(self, -1, "Song Elements" ), wx.HORIZONTAL)
         for bmp, tip, func in [('title', "Assign Title", self.convert_to_title), 
-                                ('subtitle', "Assign Title", self.convert_to_subtitle),
-                                ('comment', "Assign Title", self.convert_to_comment),
+                                ('subtitle', "Assign Subtitle", self.convert_to_subtitle),
+                                ('comment', "Add Comment", self.convert_to_comment),
                                 ]:
             b = wx.BitmapButton(self.sidepanel, -1, get_icon(bmp))
             b.SetToolTipString(tip)
