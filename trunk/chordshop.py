@@ -6,8 +6,8 @@ Copyright (C) 2004-2008 Blake T. Garretson
 Email: blake@blakeg.net
 
 This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License.
+it under the terms of the GNU General Public License (version 2) as published by
+the Free Software Foundation.
 
 This program is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -979,9 +979,9 @@ class AboutViewer(wx.html.HtmlWindow):
             Copyright (C) 2004-2008 Blake T. Garretson<br />All Rights Reserved.
             <br />
             <a href="mailto:blake@blakeg.net">blake@blakeg.net</a> --
-            <a href="http://www.chordshop.com">http://www.chordshop.com</a>
+            <a href="http://www.blakeg.net">http://www.blakeg.net</a>
             <br /><br />
-            Go to <a href="http://chordshop.sourceforge.net">http://chordshop.sourceforge.net</a>
+            Go to <a href="http://www.chordshop.com">http://www.chordshop.com</a>
             <br />
             for the latest info and downloads.
             <br /><br />
