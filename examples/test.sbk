@@ -1,6 +1,0 @@
-!index=1
-song.pro
-song.csp|fonts.chords_face='Helvetica'|fonts.chords_size=8
-test.csp|transpose=0,2,3,4
-test.csp|transpose=C,D,G
-test.csp|capo=0
