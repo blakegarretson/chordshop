@@ -3,7 +3,7 @@ import re
 import sys
 
 re_text = [
-    r"(?P<root>[ABCDEFG][#b]?)",
+    r"(?<!\[)(?P<root>[ABCDEFG][#b]?)",
     r"(?P<minor>m(?!aj)|min|minor)?",
     r"((M|maj|MAJ)(?P<majN>7|9|11|13))?",
     r"(?P<number>\d+(?!/9))?",

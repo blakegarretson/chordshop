@@ -197,6 +197,8 @@ class MainWindow(QMainWindow):
         self.pro2chordsAction.triggered.connect(self.pro2chords)
         self.undoAction = QAction("UndoConvert", self)
         self.undoAction.triggered.connect(self.undo)
+        self.bracket_to_colonAction = QAction("[section]>section:", self)
+        self.bracket_to_colonAction.triggered.connect(self.bracket_to_colon)
 
         self.fileToolBar = self.addToolBar("File")
         self.fileToolBar.addAction(self.newAction)
@@ -211,6 +213,11 @@ class MainWindow(QMainWindow):
         self.toolsToolBar.addAction(self.chords2proAction)
         self.toolsToolBar.addAction(self.pro2chordsAction)
         self.toolsToolBar.addAction(self.undoAction)
+    def bracket_to_colon(self):
+        self.undo_text = self.textbox.toPlainText()
+        c = chordpro.ChordPro(self.textbox.toPlainText())
+        c.
+        self.textbox.setText(c.text)
     def undo(self):
         self.textbox.setText(self.undo_text)
 

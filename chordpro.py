@@ -10,8 +10,10 @@ Chordpro:
 
 import chord, re
 
-not_chordpro = r'(?<!\[)([A-Za-z0-9+]+)(?!\])'
+not_chordpro = r'\[([A-Za-z0-9+]+)\]'
 not_chordpro_re = re.compile(not_chordpro)
+bracket_section = r'^\[([A-Za-z0-9 ]+)\]\s*$'
+bracket_section_re = re.compile(bracket_section, re.MULTILINE)
 
 def is_chord_line(line):
     """Determine if line is only chords or chord-like e.g. C, Dm, /, -. NC."""
@@ -86,6 +88,16 @@ class ChordPro():
 
     def chordpro_to_chords(self):
         pass
+    def bracket_to_colon(self):
+        """Transform sections designated with brackets to sections with a colon.
+        e.g.
+        [Verse 1] becomes Verse 1:
+        
+        This is useful for songs cut and pasted from some tab sites."""
+        
+        while r:=bracket_section_re.search(self.text):
+            self.text = self.text[:r.span()[0]] + f'{r.groups()[0]}:' + self.text[r.span()[1]:]
+        
 
     def transpose(self, halftones):
         text = self.text[:]
@@ -134,12 +146,15 @@ test3= """
 
 intro: Em A D G
 
+[Verse 1]
 Em           A               D G D G      Em  A
 How can I tell you that I love  you, I love you
       D     G        D              G
 But I can't think of right words to say
 Em              A               D G    D        G
 I long to tell you that I am always thinking of you,
+
+[Chorus]
     Em                 A
 I'm always thinking of you,
        D     G     D       G  D G D        G
@@ -179,7 +194,8 @@ Whoever I'm with I'm always,"""
 # """
 
 c = ChordPro(test3)
-c.chords_to_chordpro()
+c.bracket_to_colon()
+# c.chords_to_chordpro()
 print(c.text)
 # c = ChordPro(test)
 # c.chords_to_chordpro(12, 25, forcechords=True)
