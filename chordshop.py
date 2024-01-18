@@ -216,7 +216,7 @@ class MainWindow(QMainWindow):
     def bracket_to_colon(self):
         self.undo_text = self.textbox.toPlainText()
         c = chordpro.ChordPro(self.textbox.toPlainText())
-        c.
+        c.bracket_to_colon()
         self.textbox.setText(c.text)
     def undo(self):
         self.textbox.setText(self.undo_text)

@@ -88,6 +88,7 @@ class ChordPro():
 
     def chordpro_to_chords(self):
         pass
+    
     def bracket_to_colon(self):
         """Transform sections designated with brackets to sections with a colon.
         e.g.
